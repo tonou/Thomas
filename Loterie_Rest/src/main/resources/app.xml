@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd">
+<!-- Injection de dépendance -->
+
+<bean id="personneDao" class="com.adaming.myapp.dao.personne.PersonneDaoImpl"></bean>
+<bean id="personneService" class="com.adaming.myapp.service.personne.PersonneServiceImpl">
+
+<property name="dao" ref="personneDao"></property>
+</bean>
+
+<bean id="ticketDao" class="com.adaming.myapp.dao.ticket.TicketDaoImpl"></bean>
+<bean id="ticketService" class="com.adaming.myapp.service.ticket.TicketServiceImpl">
+
+<property name="dao" ref="ticketDao"></property>
+</bean>
+
+<bean id="lotDao" class="com.adaming.myapp.dao.lot.LotDaoImpl"></bean>
+<bean id="lotService" class="com.adaming.myapp.service.lot.LotServiceImpl">
+
+<property name="dao" ref="lotDao"></property>
+</bean>
+
+<!-- <context:property-placeholder location="classpath:jdbc2.properties"/> -->
+
+<!--  fournit la connexion -->
+
+
+
+	<bean id="datasource"  
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver"></property>  <!-- sgbd pour se connecter -->
+		<property name="url" value="jdbc:mysql://localhost/loterie"></property>   <!-- c'est la bdd -->
+		<property name="username" value="root"></property>
+		<property name="password" value=""></property>
+	</bean>
+
+	<bean id="PersistenceUnitManager"
+		class="org.springframework.orm.jpa.persistenceunit.DefaultPersistenceUnitManager">
+		<property name="defaultDataSource" ref="datasource"></property>
+		<property name="persistenceXmlLocations">  
+			<list>
+				<value>classpath*:META-INF/persistence.xml</value>   <!-- equivalent au copier coller du fichier persistence, responsable de la construction du entity manager facotiry -->
+			</list>
+		</property>
+	</bean>
+	<bean id="EntityManagerFactory"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"> <!-- interagit avec persistence unit pour instancier un objet qui a un @entity, il reçoit les persistence -->
+		<property name="persistenceUnitManager" ref="PersistenceUnitManager"></property>
+		<property name="persistenceUnitName" value="UP_Loterie"></property>
+	</bean>
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="EntityManagerFactory"></property>
+	</bean>
+	<tx:annotation-driven transaction-manager="transactionManager" /> <!-- name space -->
+	<context:annotation-config></context:annotation-config>
+
+</beans>
